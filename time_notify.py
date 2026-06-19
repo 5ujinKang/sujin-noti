@@ -17,21 +17,24 @@ from pathlib import Path
 # ==========================
 BASE_DIR = Path(__file__).parent  # folder of this script
 
-SOUND_00 = BASE_DIR / "paper_00.wav"
+SOUND_00 = BASE_DIR / "page_00.wav"
 SOUND_50 = BASE_DIR / "noti_50.wav"  
 
 # Active days: 0=Monday, 6=Sunday (Mon–Fri)
-ACTIVE_DAYS = {0, 2, 3, 4, 5, 6}
+ACTIVE_DAYS = {0, 1, 2, 3, 4, 5, 6}
 
 # Active hours (24h format)
-START_HOUR = 7
-END_HOUR = 19
+START_HOUR = 0
+END_HOUR = 24
 
 
 def print_info():
     days_map = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
     active_days_str = ', '.join([days_map[d] for d in ACTIVE_DAYS if 0<=d<=6])
     
+    COLOR = "\033[38;2;57;255;20m" 
+    RESET = "\033[0m"
+
     cat = f"""
     ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣤⣶⢶⣶⣄⠀⣠⣴⣾⠿⠿⣷⣄⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⢀⣠⣤⣤⣄⣀⡀⠀⠀⠀⠀⢀⣀⣀⣀⣠⣾⠋⠀⠀⠈⠹⣿⡟⠉⠀⠀⠀⠘⣿⡄⠀⠀⠀⠀⠀    ⠀✧˖°.——⋆˖⁺‧₊☽❀☾₊‧⁺˖⋆——✧˖°.
@@ -58,7 +61,7 @@ def print_info():
 ⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⢷⣦⣤⣤⣴⡿⠋⠁⠀⠀⠀⠀⠀⠀⠈⠙⢿⣦⣤⣀⣤⣴⡿⠛⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
     """
-    print(cat)
+    print(COLOR + cat + RESET)
 
 
 
