@@ -14,11 +14,10 @@ import urllib.request
 
 TOPIC = "claude-done-73147a89"
 NTFY_URL = f"https://ntfy.sh/{TOPIC}/json"
-SOUND = "/usr/share/sounds/freedesktop/stereo/complete.oga"
 
 
-def play_sound():
-    subprocess.Popen(["paplay", SOUND],
+def speak(text: str):
+    subprocess.Popen(["espeak-ng", "-v", "en-gb", "-s", "145", "-p", "55", text],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
@@ -48,7 +47,11 @@ def listen():
                     if msg:
                         print(f"[{title}] {msg}", flush=True)
                         desktop_notify(title, msg)
-                        play_sound()
+                        # parse "[task] ..." prefix from message
+                        task = "shell"
+                        if msg.startswith("[") and "]" in msg:
+                            task = msg[1:msg.index("]")]
+                        speak(f"{title}, {task} is done")
         except KeyboardInterrupt:
             print("\nStopped.")
             sys.exit(0)
