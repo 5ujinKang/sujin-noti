@@ -3,11 +3,11 @@
 # Set _NOTIFY_HOST to a friendly name for this machine.
 # Usage:
 #   notify <command>       e.g.  notify make build
-#   claude ...             auto-notified via alias
+#   notify claude ...      to notify a claude run (no auto-alias)
 
 _NOTIFY_TOPIC="claude-done-73147a89"
 _NOTIFY_URL="https://ntfy.sh/${_NOTIFY_TOPIC}"
-_NOTIFY_HOST="Thoth"   # <-- change per machine (e.g. "Server03", "Ginkgo01")
+_NOTIFY_HOST="Server03"   # <-- change per machine (e.g. "Server03", "Ginkgo01")
 
 notify() {
     # detect task type from the first token of the command
@@ -30,5 +30,5 @@ notify() {
     return "$status"
 }
 
-alias claude='notify claude'
+# alias claude='notify claude'   # disabled: do not auto-alias claude
 # ─────────────────────────────────────────────────────────────────────────────
