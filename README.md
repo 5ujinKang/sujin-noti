@@ -76,7 +76,7 @@ Add to `~/.claude/settings.json` to get notified when Claude finishes each respo
 
 ```python
 CLAUDE_SOUND_BY_HOST = {
-    "Thoth": os.path.expanduser("~/Downloads/thoth_claude.mp3"),
+    "thoth": os.path.expanduser("~/Downloads/thoth_claude.mp3"),
 }
 ```
 
