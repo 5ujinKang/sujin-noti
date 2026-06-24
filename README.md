@@ -76,9 +76,12 @@ Add to `~/.claude/settings.json` to get notified when Claude finishes each respo
 
 ```python
 CLAUDE_SOUND_BY_HOST = {
-    "thoth": os.path.expanduser("~/Downloads/thoth_claude.mp3"),
+    "thoth":           os.path.join(BASE_DIR, "sounds", "thoth_claude.mp3"),
+    "smartx-server03": os.path.join(BASE_DIR, "sounds", "server03_claude.mp3"),
 }
 ```
+
+Keys must match the hostname exactly (lowercase, as returned by `hostname` on Linux). Sound files go in `sounds/`.
 
 ---
 
@@ -96,7 +99,7 @@ source ~/.bashrc
 bash ~/sujin-noti/remote-claude-hook-setup.sh
 ```
 
-Step 2 covers one-shot commands (`notify make build`, `claude train.py`, etc.).  
+Step 2 covers one-shot commands (`notify make build`, `notify python train.py`, etc.).  
 Step 3 covers interactive Claude Code sessions — every time Claude finishes a response, your local machine plays the sound.
 
 ### Set the server name
@@ -104,12 +107,12 @@ Step 3 covers interactive Claude Code sessions — every time Claude finishes a 
 Edit `_NOTIFY_HOST` at the top of `~/sujin-noti/remote-bashrc-snippet.sh`:
 
 ```bash
-_NOTIFY_HOST="Thoth"      # on thoth
-_NOTIFY_HOST="Server03"   # on server03
-_NOTIFY_HOST="Ginkgo01"   # on ginkgo01
+_NOTIFY_HOST="thoth"     # on thoth
+_NOTIFY_HOST="server03"  # on server03
+_NOTIFY_HOST="ginkgo01"  # on ginkgo01
 ```
 
-The Claude Code hook uses `$(hostname)` automatically — no extra config needed.
+> **Important:** use lowercase — `CLAUDE_SOUND_BY_HOST` in `job-notify-listen` matches case-sensitively against this value. The Claude Code hook uses `$(hostname)` which returns lowercase on Linux, so keep `_NOTIFY_HOST` lowercase too.
 
 ### Keep it updated
 
@@ -138,6 +141,15 @@ For any other command, wrap it with `notify`:
 notify ./long-running-script.sh
 notify rsync -av /src /dst
 ```
+
+---
+
+## Adding a new remote machine
+
+1. Clone the repo and run setup (steps above).
+2. Add a sound file to `sounds/<hostname>_claude.mp3` on your local machine.
+3. Add an entry to `CLAUDE_SOUND_BY_HOST` in `job-notify-listen`.
+4. Restart `job-notify-listen` (or kill the process — `secretary_monroe.sh` auto-restarts it).
 
 ---
 

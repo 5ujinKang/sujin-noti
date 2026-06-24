@@ -7,6 +7,14 @@
 #
 # writer: Sujin Kang
 
+LOCKFILE="/tmp/secretary_monroe.lock"
+if [[ -f $LOCKFILE ]] && kill -0 "$(cat "$LOCKFILE")" 2>/dev/null; then
+    echo "Monroe is already running (PID $(cat "$LOCKFILE"))."
+    exit 1
+fi
+echo $$ > "$LOCKFILE"
+trap "rm -f $LOCKFILE" EXIT
+
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 SOUNDS="$BASE_DIR/sounds"
@@ -77,7 +85,7 @@ EOF
 
 img() { cat "$@"; }
 
-play_mp3() { mpg123 -q "$1" >/dev/null 2>&1 & }
+play_mp3() { mpg123 -q --scale 65536 "$1" >/dev/null 2>&1 & }
 
 boot_greet() {
     local hour today block sound flag
@@ -99,7 +107,7 @@ boot_greet() {
     fi
 }
 
-(while true; do job-notify-listen; sleep 2; done) &
+(while true; do job-notify-listen > /dev/null 2>&1; sleep 2; done) &
 NOTIFY_PID=$!
 trap "kill $NOTIFY_PID 2>/dev/null" EXIT
 
@@ -112,13 +120,13 @@ while true; do
     hour=$(date +%-H)
 
     if (( minute == 0 )) && [[ $last_played != 0 ]]; then
-        paplay "$SOUND_00" >/dev/null 2>&1 &
+        paplay --volume=131072 "$SOUND_00" >/dev/null 2>&1 &
         last_played=0
     elif (( minute == 50 )) && [[ $last_played != 50 ]]; then
         if   (( hour == 11 )); then play_mp3 "$LUNCH_SOUND"
         elif (( hour == 16 )); then play_mp3 "$DINNER_SOUND"
         elif (( hour == 19 )); then play_mp3 "$DAY_END_SOUND"
-        else paplay "$SOUND_50" >/dev/null 2>&1 &
+        else paplay --volume=131072 "$SOUND_50" >/dev/null 2>&1 &
         fi
         last_played=50
     elif (( minute == 55 )) && [[ $last_played != 55 ]]; then

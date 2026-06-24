@@ -19,7 +19,8 @@ CLAUDE_SOUND = os.path.join(BASE_DIR, "sounds", "local_claude.mp3")
 
 # Per-host override: maps Title (hostname) → mp3 path
 CLAUDE_SOUND_BY_HOST = {
-    "thoth": os.path.expanduser("~/Downloads/thoth_claude.mp3"),
+    "thoth":    os.path.join(BASE_DIR, "sounds", "thoth_claude.mp3"),
+    "smartx-server03": os.path.join(BASE_DIR, "sounds", "server03_claude.mp3"),
 }
 
 
