@@ -2,31 +2,30 @@
 
 Two notification tools:
 
-- **`time_notify.py`** — time-based sound alerts on a schedule (runs locally)
-- **`job-notify-listen` + `remote-bashrc-snippet.sh`** — job-done TTS notifications from remote machines
+- **`secretary_monroe.sh`** — time-based sound alerts on a schedule (runs locally)
+- **`job-notify-listen` + `remote-bashrc-snippet.sh`** — job-done notifications from remote machines (sound played locally)
+
+Sound files live in `sounds/`.
 
 ---
 
-## time_notify.py
+## secretary_monroe.sh
 
-Plays a sound at specific times. No goddamn notifier on the web supports:
-1. Sound only (not an alarm you have to dismiss)
-2. Multiple notifiers
-3. Configurable days / sleep hours
-
-This does.
+Plays sounds at `:00` and `:50` each hour, boot greeting, and scheduled reminders (lunch, dinner, paper group, etc.).
 
 ```bash
-./time_notify.py
+bash secretary_monroe.sh
 ```
+
+Starts `job-notify-listen` automatically as a subprocess (with auto-restart on crash).
 
 ---
 
 ## Job-done notifier
 
-When a shell command or Claude task finishes on a remote machine, your local machine speaks **"Thoth, Claude is done"** or **"Thoth, Shell is done"**.
+When a shell command or Claude task finishes on a remote machine, your local machine plays a sound or speaks the result.
 
-Uses [ntfy.sh](https://ntfy.sh) as a relay — remote machines post a message, local machine subscribes and plays TTS.
+Uses [ntfy.sh](https://ntfy.sh) as a relay — remote machines post a message, local machine subscribes and reacts.
 
 ### Architecture
 
@@ -37,14 +36,14 @@ remote machine
                               ntfy.sh (relay)
                                     ↓
 local machine
-  └─ job-notify-listen → espeak-ng TTS + desktop notification
+  └─ job-notify-listen → plays mp3 / espeak-ng TTS + desktop notification
 ```
 
 ---
 
 ## Local machine setup
 
-The listener is at `~/.local/bin/job-notify-listen`. Run it in a persistent tmux pane or add to autostart:
+The listener is started automatically by `secretary_monroe.sh`. To run it standalone:
 
 ```bash
 job-notify-listen
@@ -68,6 +67,16 @@ Add to `~/.claude/settings.json` to get notified when Claude finishes each respo
       }
     ]
   }
+}
+```
+
+### Per-host sounds
+
+`job-notify-listen` plays `sounds/local_claude.mp3` by default for `[claude]` messages. To use a different sound for a specific host, edit `CLAUDE_SOUND_BY_HOST` near the top of the script:
+
+```python
+CLAUDE_SOUND_BY_HOST = {
+    "Thoth": os.path.expanduser("~/Downloads/thoth_claude.mp3"),
 }
 ```
 
@@ -112,14 +121,16 @@ cd ~/sujin-noti && git pull && source ~/.bashrc
 
 ## Usage on remote machines
 
-| Command | Spoken notification |
+| Command | Local reaction |
 |---|---|
-| `notify make build` | "Thoth, Shell is done" |
-| `notify python train.py` | "Thoth, Python is done" |
-| `notify make all` | "Thoth, Make is done" |
-| `claude ...` | "Thoth, Claude is done" (aliased automatically) |
+| `notify make build` | speaks "make is done" |
+| `notify python train.py` | speaks "python is done" |
+| `notify ./script.sh` | speaks "shell is done" |
+| `claude ...` | plays claude sound (aliased automatically) |
+| Claude Code session | plays claude sound (via Stop hook) |
 
-`claude` is aliased to `notify claude` automatically — no extra typing needed.
+`claude` is aliased to `notify claude` automatically — no extra typing needed for one-shot runs.  
+For interactive Claude Code, the Stop hook fires on every completed response.
 
 For any other command, wrap it with `notify`:
 
