@@ -8,12 +8,14 @@ Run this once (e.g. in a persistent tmux pane or autostart):
 """
 
 import json
+import os
 import subprocess
 import sys
-import urllib.request
 
 TOPIC = "claude-done-73147a89"
 NTFY_URL = f"https://ntfy.sh/{TOPIC}/json"
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+CLAUDE_SOUND = os.path.join(BASE_DIR, "local_claude.mp3")
 
 
 def speak(text: str):
@@ -30,29 +32,38 @@ def listen():
     print(f"Listening on ntfy.sh/{TOPIC} …  (Ctrl-C to stop)", flush=True)
     while True:
         try:
-            with urllib.request.urlopen(NTFY_URL) as resp:
-                for raw_line in resp:
-                    line = raw_line.decode().strip()
-                    if not line:
-                        continue
-                    try:
-                        event = json.loads(line)
-                    except json.JSONDecodeError:
-                        continue
-                    # ntfy sends keepalive "open" events — ignore them
-                    if event.get("event") != "message":
-                        continue
-                    msg = event.get("message", "")
-                    title = event.get("title", "Job finished")
-                    if msg:
-                        print(f"[{title}] {msg}", flush=True)
-                        desktop_notify(title, msg)
-                        # parse "[task] ..." prefix from message
-                        task = "shell"
-                        if msg.startswith("[") and "]" in msg:
-                            task = msg[1:msg.index("]")]
-                        speak(f"{title}, {task} is done")
+            proc = subprocess.Popen(
+                ["curl", "-sN", "--no-buffer", NTFY_URL],
+                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            )
+            for raw_line in proc.stdout:
+                line = raw_line.decode().strip()
+                if not line:
+                    continue
+                try:
+                    event = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                # ntfy sends keepalive "open" events — ignore them
+                if event.get("event") != "message":
+                    continue
+                msg = event.get("message", "")
+                title = event.get("title", "Job finished")
+                if msg:
+                    print(f"[{title}] {msg}", flush=True)
+                    desktop_notify(title, msg)
+                    # parse "[task] ..." prefix from message
+                    task = "shell"
+                    if msg.startswith("[") and "]" in msg:
+                        task = msg[1:msg.index("]")]
+                    if task == "claude":
+                        subprocess.Popen(["mpg123", "-q", "-o", "pulse", "--scale", "65536", CLAUDE_SOUND],
+                                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    else:
+                        speak(f"{task} is done")
+            proc.wait()
         except KeyboardInterrupt:
+            proc.terminate()
             print("\nStopped.")
             sys.exit(0)
         except Exception as exc:
