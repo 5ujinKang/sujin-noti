@@ -79,10 +79,16 @@ Add to `~/.claude/settings.json` to get notified when Claude finishes each respo
 # 1. clone the repo
 git clone git@github.com:5ujinKang/sujin-noti.git ~/sujin-noti
 
-# 2. add to ~/.bashrc
+# 2. add to ~/.bashrc  (shell command wrapper)
 echo "source ~/sujin-noti/remote-bashrc-snippet.sh" >> ~/.bashrc
 source ~/.bashrc
+
+# 3. install the Claude Code Stop hook  (interactive sessions)
+bash ~/sujin-noti/remote-claude-hook-setup.sh
 ```
+
+Step 2 covers one-shot commands (`notify make build`, `claude train.py`, etc.).  
+Step 3 covers interactive Claude Code sessions — every time Claude finishes a response, your local machine plays the sound.
 
 ### Set the server name
 
@@ -93,6 +99,8 @@ _NOTIFY_HOST="Thoth"      # on thoth
 _NOTIFY_HOST="Server03"   # on server03
 _NOTIFY_HOST="Ginkgo01"   # on ginkgo01
 ```
+
+The Claude Code hook uses `$(hostname)` automatically — no extra config needed.
 
 ### Keep it updated
 

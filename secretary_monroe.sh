@@ -98,7 +98,7 @@ boot_greet() {
     fi
 }
 
-job-notify-listen &
+(while true; do job-notify-listen; sleep 2; done) &
 NOTIFY_PID=$!
 trap "kill $NOTIFY_PID 2>/dev/null" EXIT
 
