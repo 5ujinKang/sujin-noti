@@ -11,7 +11,7 @@ Sound files live in `sounds/`.
 
 ## secretary_monroe.sh
 
-Plays sounds at `:00` and `:50` each hour, boot greeting, and scheduled reminders (lunch, dinner, paper group, etc.).
+Plays a boot greeting.
 
 ```bash
 bash secretary_monroe.sh

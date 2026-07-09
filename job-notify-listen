@@ -19,8 +19,13 @@ CLAUDE_SOUND = os.path.join(BASE_DIR, "sounds", "local_claude.mp3")
 
 # Per-host override: maps Title (hostname) → mp3 path
 CLAUDE_SOUND_BY_HOST = {
-    "thoth":    os.path.join(BASE_DIR, "sounds", "thoth_claude.mp3"),
+    "Thoth":           os.path.join(BASE_DIR, "sounds", "thoth_claude.mp3"),
     "smartx-server03": os.path.join(BASE_DIR, "sounds", "server03_claude.mp3"),
+}
+
+SHELL_SOUND_BY_HOST = {
+    "Thoth":    os.path.join(BASE_DIR, "sounds", "thoth_shell.mp3"),
+    "Server03": os.path.join(BASE_DIR, "sounds", "server03_shell.mp3"),
 }
 
 
@@ -64,7 +69,10 @@ def listen():
                         task = msg[1:msg.index("]")]
                     if task == "claude":
                         sound = CLAUDE_SOUND_BY_HOST.get(title, CLAUDE_SOUND)
-                        subprocess.Popen(["mpg123", "-q", "-o", "pulse", "--scale", "65536", sound],
+                        subprocess.Popen(["mpg123", "-q", "-o", "pulse", sound],
+                                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    elif title in SHELL_SOUND_BY_HOST:
+                        subprocess.Popen(["mpg123", "-q", "-o", "pulse", SHELL_SOUND_BY_HOST[title]],
                                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                     else:
                         speak(f"{task} is done")
